@@ -1,3 +1,4 @@
 lark
 python-dotenv
 pytest
+zai-sdk

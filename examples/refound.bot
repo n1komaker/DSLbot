@@ -1,0 +1,31 @@
+bot RefundBot {
+    state Start {
+        say "您好，这里是智能售后中心。"
+        say "请问您是想【申请退款】还是【查询物流】？"
+        listen
+        process {
+            user_intent "退款" => goto AskOrderId
+            user_intent "物流" => goto CheckLogistics
+            default => say "抱歉，请明确回复'退款'或'物流'。"
+        }
+    }
+
+    state AskOrderId {
+        say "好的，正在为您办理退款。"
+        say "请提供您的订单号："
+        listen
+        say "收到订单号，正在核实..."
+        goto EndState
+    }
+
+    state CheckLogistics {
+        say "请稍等，正在查询物流信息..."
+        say "您的包裹正在派送中。"
+        goto EndState
+    }
+
+    state EndState {
+        say "感谢您的咨询，再见！"
+        exit
+    }
+}
