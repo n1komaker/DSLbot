@@ -2,8 +2,8 @@ import unittest
 import os
 import sys
 
-TESTS_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(TESTS_DIR, '..'))
+TEST_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(TEST_DIR, '..'))
 
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
@@ -69,8 +69,8 @@ class LocalTestAdapter:
         return "\n".join(self.bot_outputs)
 
 
-TEST_DB_PATH = os.path.join(PROJECT_ROOT, 'test_bot_data_final.db')
-REPORT_FILE = os.path.join(PROJECT_ROOT, 'test_report_final.txt')
+TEST_DB_PATH = os.path.join(PROJECT_ROOT, 'test_bot_data.db')
+REPORT_FILE = os.path.join(PROJECT_ROOT, 'test_report.txt')
 
 
 class TestEnterpriseScenario(unittest.TestCase):
@@ -183,12 +183,10 @@ class TestEnterpriseScenario(unittest.TestCase):
 
     def test_4(self):
         print("\n=== Test 4: Parametrized Scenarios ===")
-
         test_cases = [
             ("User Test1", "13800138000", "办理成功", 1190.50),
             ("User Test2", "13900139000", "余额不足", 5.00)
         ]
-
         for desc, phone, expected_msg, expected_bal in test_cases:
             with self.subTest(scenario=desc):
                 if "余额不足" in expected_msg:
@@ -200,7 +198,6 @@ class TestEnterpriseScenario(unittest.TestCase):
                 output = adapter.get_all_output()
 
                 self.assertIn(expected_msg, output)
-
                 actual_bal = self.db.fetch_one(f"SELECT balance FROM users WHERE phone='{phone}'")
                 self.assertAlmostEqual(actual_bal, expected_bal, places=2)
 
@@ -224,6 +221,42 @@ class TestEnterpriseScenario(unittest.TestCase):
         output = adapter.get_all_output()
         self.assertIn("线路信号异常", output)
         self.assertIn("错误代码: 1", output)
+
+    def test_7(self):
+        print("\n=== Test 7: Loop & Retry Mechanism ===")
+        inputs = ["110", "13800138000", "没有了"]
+        adapter = self.run_engine('customer_server.bot', 'custBot', inputs)
+
+        output = adapter.get_all_output()
+        self.assertIn("未查询到号码", output)
+        self.assertIn("身份验证通过", output)
+        self.assertIn("尊贵的 5G畅享套餐 用户", output)
+
+    def test_8(self):
+        print("\n=== Test 8: Noise Input & Fallback Logic ===")
+        inputs = ["13800138000", "我想吃火锅", "查话费", "没有了"]
+        adapter = self.run_engine('customer_server.bot', 'custBot', inputs)
+
+        output = adapter.get_all_output()
+        self.assertIn("抱歉，我没听懂", output)
+        self.assertIn("账户余额", output)
+
+    def test_9(self):
+        print("\n=== Test 9: Context Isolation ===")
+        inputs_a = ["13900139000", "办理流量包", "拒绝", "没有了"]
+        adapter_a = self.run_engine('customer_server.bot', 'custBot', inputs_a)
+
+        inputs_b = ["13800138000", "办理流量包", "没有了"]
+        adapter_b = self.run_engine('customer_server.bot', 'custBot', inputs_b)
+
+        output_a = adapter_a.get_all_output()
+        output_b = adapter_b.get_all_output()
+
+        self.assertIn("余额不足", output_a)
+        self.assertIn("办理成功", output_b)
+
+        self.assertNotIn("1200.50", output_a)
+        self.assertNotIn("测试1", output_a)
 
 
 if __name__ == '__main__':
