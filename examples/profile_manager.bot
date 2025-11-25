@@ -1,0 +1,88 @@
+bot profBot {
+    state Start {
+        say "欢迎进入用户信息管理后台（安全版）。请输入手机号登陆："
+        listen $phone
+
+        sql "SELECT count(*) FROM users WHERE phone = $phone" as $exists
+        if $exists == 0 goto Error
+
+        goto SecurityCheck
+    }
+
+    state Error {
+        say "系统无此用户记录。"
+        exit
+    }
+
+    state SecurityCheck {
+        say "为了保障您的档案安全，请输入身份证后 4 位进行身份核验："
+        listen $input_id
+
+        sql "SELECT id_card FROM users WHERE phone = $phone" as $real_id
+
+        if $input_id != $real_id goto AuthFail
+
+        say "身份核验通过。"
+        goto Dashboard
+    }
+
+    state AuthFail {
+        say "身份验证失败！禁止访问敏感档案。"
+        exit
+    }
+
+    state Dashboard {
+        sql "SELECT name FROM users WHERE phone = $phone" as $name
+        sql "SELECT email FROM users WHERE phone = $phone" as $email
+        sql "SELECT address FROM users WHERE phone = $phone" as $addr
+        sql "SELECT city FROM users WHERE phone = $phone" as $city
+
+        say "========== 档案信息 =========="
+        say "姓名：$name"
+        say "城市：$city"
+        say "邮箱：$email"
+        say "住址：$addr"
+        say "============================"
+        say "请问您想修改什么？（姓名、邮箱、住址、退出）"
+        listen
+        process {
+            user_intent "修改姓名" => goto EditName
+            user_intent "修改邮箱" => goto EditEmail
+            user_intent "修改住址" => goto EditAddress
+            user_intent "退出" => goto End
+            default => goto Dashboard
+        }
+    }
+
+    state EditName {
+        say "请输入新的姓名："
+        listen $new_name
+
+        sql "UPDATE users SET name = $new_name WHERE phone = $phone"
+        say "姓名已更新。"
+        goto Dashboard
+    }
+
+    state EditEmail {
+        say "请输入新的电子邮箱："
+        listen $new_email
+
+        sql "UPDATE users SET email = $new_email WHERE phone = $phone"
+        say "邮箱已更新。"
+        goto Dashboard
+    }
+
+    state EditAddress {
+        say "请输入新的联系地址："
+        listen $new_addr
+
+        sql "UPDATE users SET address = $new_addr WHERE phone = $phone"
+        say "地址已更新。"
+        goto Dashboard
+    }
+
+    state End {
+        say "档案更新完毕，已安全退出。"
+        exit
+    }
+}

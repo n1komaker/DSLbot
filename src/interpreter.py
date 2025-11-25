@@ -148,6 +148,8 @@ class RuntimeEngine:
 
         elif ctype == 'listen':
             val = mock_inputs.pop(0) if mock_inputs else self.io.receive()
+            if val == "EXIT":
+                return True, 'Exit'
             context.history.append(val)
             if cmd.get('var'): context.set_var(cmd['var'], val)
             return False, None
@@ -211,7 +213,15 @@ class RuntimeEngine:
         flow = self.flows[bot_name]
         ctx = Context()
         print(f"--- Bot {bot_name} Started ---")
+
+        max_steps = 1000
+        steps = 0
+
         while ctx.state != 'Exit':
+            if steps > max_steps:
+                print("Error: Max execution steps reached (Infinite Loop detected).")
+                break
+
             if ctx.state not in flow: break
             cmds = flow[ctx.state]
             idx = 0
@@ -221,5 +231,7 @@ class RuntimeEngine:
                     if nxt: ctx.state = nxt
                     break
                 idx += 1
-        self.io.send("会话已结束")
+            steps += 1
+
+        self.io.send("Session Ended")
         print("--- Session Ended ---")

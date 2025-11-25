@@ -1,4 +1,4 @@
-bot SqlBot {
+bot custBot {
 
     state Start {
         say "您好，欢迎致电中国电信。请直接输入您的11位手机号码进行身份验证："
