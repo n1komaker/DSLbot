@@ -1,0 +1,147 @@
+bot SqlBot {
+
+    state Start {
+        say "您好，欢迎致电中国电信。请直接输入您的11位手机号码进行身份验证："
+        listen $phone
+
+        sql "SELECT count(*) FROM users WHERE phone = $phone" as $exists
+
+        if $exists == 0 goto AuthFailed
+
+        sql "SELECT name FROM users WHERE phone = $phone" as $name
+        sql "SELECT package_name FROM users WHERE phone = $phone" as $pkg
+
+        say "身份验证通过。尊贵的 $pkg 用户 $name，您好。"
+        goto MainMenu
+    }
+
+    state AuthFailed {
+        say "抱歉，系统中未查询到号码 $phone 的档案。"
+        say "请检查您的输入，我们再试一次。"
+        goto Start
+    }
+
+    state MainMenu {
+        say "请问您需要办理什么业务？（查话费、充值、查流量、买流量、宽带报修、转人工）"
+        listen
+        process {
+            user_intent "查询话费" => goto CheckBalance
+            user_intent "充值缴费" => goto TopUpFlow
+            user_intent "查询流量" => goto CheckData
+            user_intent "办理流量包" => goto BuyDataFlow
+            user_intent "宽带故障" => goto BroadbandCheck
+            user_intent "人工服务" => goto HumanAgent
+            default => goto MainMenuDefault
+        }
+    }
+
+    state MainMenuDefault {
+        say "抱歉，我没听懂。请说“充值”或“查话费”等关键词。"
+        goto MainMenu
+    }
+
+    state CheckBalance {
+        sql "SELECT balance FROM users WHERE phone = $phone" as $bal
+        say "您当前的账户余额为：$bal 元。"
+        if $bal < 10 goto LowBalanceAlert
+        goto AskContinue
+    }
+
+    state LowBalanceAlert {
+        say "警告：您的余额已不足 10 元，建议您立即充值。"
+        goto AskContinue
+    }
+
+    state TopUpFlow {
+        say "请输入您想充值的金额（例如 50 或 100）："
+        listen $amount
+
+        say "正在为您充值 $amount 元..."
+        sql "UPDATE users SET balance = balance + $amount WHERE phone = $phone"
+
+        sql "SELECT balance FROM users WHERE phone = $phone" as $new_bal
+        say "充值成功！您当前的余额为：$new_bal 元。"
+        goto AskContinue
+    }
+
+    state CheckData {
+        sql "SELECT data_left FROM users WHERE phone = $phone" as $data
+        say "您本月剩余通用流量：$data GB。"
+        if $data < 1 goto DataLowAlert
+        goto AskContinue
+    }
+
+    state DataLowAlert {
+        say "您的流量已不足 1GB。"
+        say "是否需要现在为您办理 '10元10G' 加油包？(回复：是/否)"
+        listen
+        process {
+            user_intent "确认" => goto BuyDataFlow
+            user_intent "拒绝" => goto AskContinue
+            default => goto AskContinue
+        }
+    }
+
+    state BuyDataFlow {
+        sql "SELECT balance FROM users WHERE phone = $phone" as $current_bal
+        if $current_bal < 10 goto PayFailed
+
+        sql "UPDATE users SET balance = balance - 10 WHERE phone = $phone"
+        sql "UPDATE users SET data_left = data_left + 10 WHERE phone = $phone"
+
+        sql "SELECT balance FROM users WHERE phone = $phone" as $new_bal
+        sql "SELECT data_left FROM users WHERE phone = $phone" as $new_data
+
+        say "办理成功！扣除话费 10 元，当前余额 $new_bal 元，剩余流量 $new_data GB。"
+        goto AskContinue
+    }
+
+    state PayFailed {
+        say "办理失败：您的余额不足 10 元，无法支付。"
+        say "是否现在进行充值？(回复：是/否)"
+        listen
+        process {
+            user_intent "确认" => goto TopUpFlow
+            user_intent "拒绝" => goto AskContinue
+            default => goto AskContinue
+        }
+    }
+
+    state BroadbandCheck {
+        say "正在检测您的家庭宽带线路..."
+        sql "SELECT broadband_status FROM users WHERE phone = $phone" as $status
+
+        if $status == 0 goto BroadbandNormal
+
+        say "检测到线路信号异常(错误代码: $status)。已为您自动派单。"
+        goto AskContinue
+    }
+
+    state BroadbandNormal {
+        say "检测结果显示线路一切正常。建议重启路由器。"
+        goto AskContinue
+    }
+
+    state HumanAgent {
+        say "正在为您转接金牌人工客服..."
+        say "转接成功，再见。"
+        exit
+    }
+
+    state AskContinue {
+        say "---------------------------"
+        say "请问还有其他业务需要办理吗？(回复：没有了/还有)"
+        listen
+        process {
+            user_intent "没有了" => goto EndService
+            user_intent "结束" => goto EndService
+            user_intent "还有" => goto MainMenu
+            default => goto MainMenu
+        }
+    }
+
+    state EndService {
+        say "感谢您的致电。祝您生活愉快！"
+        exit
+    }
+}

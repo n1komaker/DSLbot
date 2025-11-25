@@ -1,44 +1,40 @@
 start: bot_def
 
-// 机器人定义：名字+状态
 bot_def: "bot" NAME "{" state_def+ "}"
-
-// 状态定义:名字+指令
 state_def: "state" NAME "{" instruction+ "}"
 
-// 指令集
 instruction: say_cmd
            | listen_cmd
            | goto_cmd
            | exit_cmd
            | process_cmd
+           | set_cmd
+           | call_cmd
+           | if_cmd
+           | sql_cmd
 
-// 发送消息
 say_cmd: "say" STRING
-
-// 等待用户输入
-listen_cmd: "listen"
-
-// 跳转
+listen_cmd: "listen" (VAR_NAME)?
 goto_cmd: "goto" NAME
-
-// 结束
 exit_cmd: "exit"
+set_cmd: "set" VAR_NAME "=" value
+call_cmd: "call" NAME "(" (value ("," value)*)? ")" "as" VAR_NAME
+if_cmd: "if" value COMP_OP value "goto" NAME
+sql_cmd: "sql" STRING ("as" VAR_NAME)?
 
-// 调用LLM：process+规则
 process_cmd: "process" "{" case_rule+ default_rule? "}"
-
-// 意图匹配STRING，则执行action
 case_rule: "user_intent" STRING "=>" action
-
-// 如果所有意图都不匹配
 default_rule: "default" "=>" action
 
-// 动作
 action: goto_cmd | say_cmd | exit_cmd
+
+value: STRING | INT | VAR_NAME
+VAR_NAME: "$" /[a-zA-Z0-9_]+/
+COMP_OP: "==" | "!=" | ">" | "<"
 
 %import common.CNAME -> NAME
 %import common.ESCAPED_STRING -> STRING
+%import common.INT
 %import common.WS
 %import common.CPP_COMMENT
 
