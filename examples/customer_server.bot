@@ -129,7 +129,6 @@ bot SqlBot {
     }
 
     state AskContinue {
-        say "---------------------------"
         say "请问还有其他业务需要办理吗？(回复：没有了/还有)"
         listen
         process {

@@ -4,15 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2eb0c450-dc22-4efb-8b45-40c7837733be" name="更改" comment="基础文法定义">
-      <change afterPath="$PROJECT_DIR$/src/db_manager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+    <list default="true" id="2eb0c450-dc22-4efb-8b45-40c7837733be" name="更改" comment="第一个脚本基本完成">
+      <change afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/examples/refound.bot" beforeDir="false" afterPath="$PROJECT_DIR$/examples/refund.bot" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples/refund.bot" beforeDir="false" afterPath="$PROJECT_DIR$/examples/customer_server.bot" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/dsl_parser/grammar.lark" beforeDir="false" afterPath="$PROJECT_DIR$/src/dsl_parser/grammar.lark" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/interpreter.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/interpreter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/llm_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/llm_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/web.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/web.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +109,15 @@
       <option name="project" value="LOCAL" />
       <updated>1763961731040</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="第一个脚本基本完成">
+      <option name="closed" value="true" />
+      <created>1764044533544</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1764044533544</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -139,6 +145,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="基础文法定义" />
-    <option name="LAST_COMMIT_MESSAGE" value="基础文法定义" />
+    <MESSAGE value="第一个脚本基本完成" />
+    <option name="LAST_COMMIT_MESSAGE" value="第一个脚本基本完成" />
   </component>
 </project>
