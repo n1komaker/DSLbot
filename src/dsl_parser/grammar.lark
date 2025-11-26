@@ -1,5 +1,4 @@
 start: bot_def
-
 bot_def: "bot" NAME "{" state_def+ "}"
 state_def: "state" NAME "{" instruction+ "}"
 
@@ -40,3 +39,6 @@ COMP_OP: "==" | "!=" | ">" | "<"
 
 %ignore WS
 %ignore CPP_COMMENT
+
+
+
