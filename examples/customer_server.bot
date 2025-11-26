@@ -1,7 +1,7 @@
 bot custBot {
 
     state Start {
-        say "您好，欢迎致电中国电信。请直接输入您的11位手机号码进行身份验证："
+        say "您好，欢迎使用中国电信。请输入您的11位手机号码进行身份验证："
         listen $phone
 
         sql "SELECT count(*) FROM users WHERE phone = $phone" as $exists

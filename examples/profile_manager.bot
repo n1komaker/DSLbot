@@ -1,6 +1,6 @@
 bot profBot {
     state Start {
-        say "欢迎进入用户信息管理后台（安全版）。请输入手机号登陆："
+        say "欢迎进入用户信息管理后台。请输入手机号登陆："
         listen $phone
 
         sql "SELECT count(*) FROM users WHERE phone = $phone" as $exists
